@@ -26,7 +26,7 @@ def test_build_eisenscript_ring_layout() -> None:
     assert "set seed 123" in script
     assert "// Layout: ring" in script
     assert "ry ANGLE_STEP" in script
-    assert "#define VERTICAL_STEP" in script  # constant should exist even in ring layout
+    assert "#define VERTICAL_STEP" in script  # constant defined even when unused
 
 
 def test_build_eisenscript_tower_layout() -> None:
@@ -37,8 +37,21 @@ def test_build_eisenscript_tower_layout() -> None:
     assert "set seed 999" in script
     assert "// Layout: tower" in script
     assert "y VERTICAL_STEP" in script
-    assert "#define ANGLE_STEP" in script  # constant should exist even in tower layout
+    assert "#define ANGLE_STEP" in script  # constant defined even when unused
 
+def test_climate_metadata_and_hue_shift_show_up() -> None:
+    params = _sample_flow_params()
+    script = build_eisenscript(
+        flow_params=params,
+        hue_shift_deg=30.0,
+        climate_tag="ESA_SM",
+        climate_anomaly=0.5,
+    )
+
+    assert '#define CLIMATE_TAG "ESA_SM"' in script
+    assert "#define CLIMATE_ANOMALY 0.500" in script
+    assert "#define HUE_SHIFT_DEG 30.000" in script
+    assert "#define BASE_HUE 120.000" in script  # 90° + 30° hue shift
 
 def test_direction_and_speed_are_reflected_in_script() -> None:
     params = _sample_flow_params()

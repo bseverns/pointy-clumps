@@ -25,13 +25,21 @@ def build_eisenscript(
     maxdepth: int = 60,
     seed: int | None = None,
     layout: str = "ring",
+    *,
+    hue_shift_deg: float = 0.0,
+    climate_tag: str | None = None,
+    climate_anomaly: float | None = None,
 ) -> str:
-    """Turn geometric flow parameters into an EisenScript grammar."""
+    """Turn geometric flow parameters into an EisenScript grammar.
+
+    Optional hue shifting + metadata let you encode climate normals and
+    anomalies without changing the clump geometry.
+    """
     direction = (
         flow_params.wind_direction_deg if flow_params.wind_direction_deg is not None else 0.0
     )
 
-    base_hue = direction % 360.0
+    base_hue = (direction + hue_shift_deg) % 360.0
     hue1 = (base_hue + 15.0) % 360.0
     hue2 = (base_hue - 15.0) % 360.0
 
@@ -64,6 +72,18 @@ rule scene {
 }
 """
 
+climate_lines: list[str] = []
+    if climate_tag:
+        safe_tag = climate_tag.replace('"', "'")
+        climate_lines.append(f'#define CLIMATE_TAG "{safe_tag}"')
+    if climate_anomaly is not None:
+        climate_lines.append(f"#define CLIMATE_ANOMALY {climate_anomaly:.3f}")
+        climate_lines.append(f"#define HUE_SHIFT_DEG {hue_shift_deg:.3f}")
+
+    climate_block = "\n".join(climate_lines)
+    if climate_block:
+        climate_block = f"\n// Climate overlay metadata\n{climate_block}\n"
+
     script = f"""{HEADER_COMMENT}
 
 // Layout: {layout_mode}
@@ -77,7 +97,7 @@ set background #000000
 #define WIND_SPEED_MPS {flow_params.wind_speed_mps:.3f}
 #define WIND_DIRECTION_DEG {direction:.3f}
 
-// Derived color anchors
+{climate_block}// Derived color anchors
 #define BASE_HUE {base_hue:.3f}
 #define HUE_VARIANT_1 {hue1:.3f}
 #define HUE_VARIANT_2 {hue2:.3f}

@@ -61,6 +61,32 @@ def _build_parser() -> argparse.ArgumentParser:
         default="ring",
         help="Scene layout: 'ring' of clumps or vertical 'tower' (default: ring).",
     )
+    parser.add_argument(
+        "--climate-anomaly",
+        type=float,
+        default=0.0,
+        help=(
+            "Normalized anomaly (-1..1) sampled from a climate raster. "
+            "Positive values swing hues warm, negatives swing cool."
+        ),
+    )
+    parser.add_argument(
+        "--climate-anomaly-hue",
+        type=float,
+        default=25.0,
+        help=(
+            "Maximum hue swing (in degrees) to apply when the anomaly hits ±1. "
+            "Default: 25 degrees."
+        ),
+    )
+    parser.add_argument(
+        "--climate-tag",
+        default=None,
+        help=(
+            "Optional label describing the climate layer (e.g., 'CHIRPS_1981-2020'). "
+            "We embed it as metadata so you remember which raster drove the colors."
+        ),
+    )
     return parser
 
 
@@ -87,11 +113,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
 
     flow = map_wind_to_flow(wind)
+    anomaly_value = max(-1.0, min(1.0, float(args.climate_anomaly)))
+    hue_shift = anomaly_value * float(args.climate_anomaly_hue)
+
     script_text = build_eisenscript(
         flow_params=flow,
         maxdepth=args.maxdepth,
         seed=args.seed,
         layout=args.layout,
+        hue_shift_deg=hue_shift,
+        climate_tag=args.climate_tag,
+        climate_anomaly=anomaly_value,
     )
 
     output_path = Path(args.output)

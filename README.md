@@ -75,7 +75,9 @@ python -m wind_clump.cli "Chicago,US" \
   --output generated/chicago_clump.es \
   --units metric \
   --maxdepth 60 \
-  --layout ring
+  --layout ring \
+  --climate-anomaly 0.35 \
+  --climate-tag "ESA_SM_1981_2010"
 ```
 
 Options:
@@ -89,6 +91,13 @@ Options:
 - `--layout`: Scene layout. One of:
   - `ring` (default): Clumps arranged on a circular ring around the origin.
   - `tower`: Clumps stacked vertically along the Y axis, forming a column.
+- `--climate-anomaly`: Normalized anomaly sampled from a climate raster (e.g.,
+  NASA/ESA drought or soil-moisture). Values are clamped to `[-1, 1]` and only
+  shift hue—geometry stays loyal to the wind field.
+- `--climate-anomaly-hue`: Degrees of hue swing when the anomaly hits ±1
+  (default: 25°). A smaller number keeps the palette calmer.
+- `--climate-tag`: Short label describing which climate layer drove the color.
+  It ends up in the EisenScript header so you can trace the provenance later.
 
 ### Example: ring layout
 
@@ -121,6 +130,46 @@ python -m wind_clump.cli "Reykjavik,IS" \
 
 Both layouts share the same Beaufort-inspired mapping from wind to clump density,
 spike height, and thickness.
+
+## Climate normals & anomalies (NASA/ESA mash-up)
+
+Use long-term climatology rasters (NASA POWER, ESA CCI, Copernicus, etc.) as the
+slow-moving scaffold, then let daily anomalies only touch the palette. Because
+the generator cleanly separates layout (ring vs tower, twists, spike counts)
+from color, you can inject a climate signal as a hue swing without distorting
+geometry.
+
+Workflow:
+
+1. Grab a GeoTIFF normal + anomaly pair (soil moisture, drought, NDVI,…).
+2. Sample your lat/long using the helper:
+
+   ```bash
+   pip install rasterio  # once
+   python scripts/sample_climate_normal.py \
+     --normal data/esa_sm_longterm_mean.tif \
+     --anomaly data/esa_sm_daily_anom.tif \
+     --lat 64.13 --lon -21.94 \
+     --anomaly-min -0.1 --anomaly-max 0.1 \
+     --tag "ESA_SM_1981_2010"
+   ```
+
+   The script prints JSON plus a ready-to-paste CLI snippet like
+   `--climate-anomaly 0.420 --climate-tag "ESA_SM_1981_2010"`.
+3. Feed that snippet into `wind_clump.cli` alongside your city name. The layout
+   (ring vs tower) and geometry still come from the live wind; only the hues
+   swing according to the anomaly.
+
+Practical tips:
+
+- The anomaly gets clamped to ±1 internally. If your raster’s units are big,
+  rescale them with `--anomaly-min/--anomaly-max` so ±1 lands where “wild”
+  anomalies live.
+- If you only have a normal (no anomaly), still run the script without
+  `--anomaly`; the hue shift stays neutral but the JSON gives you metadata to
+  log alongside each render.
+- Embed the `CLIMATE_TAG` macro (automatically written into the `.es`) in your
+  render filenames so you always know which raster drove the color story.
 
 ## Regenerating example scenes
 
