@@ -159,6 +159,44 @@ Tests cover:
 - Mapping from `WindData` to `FlowParams` for calm vs extreme wind,
   including monotonic behavior across Beaufort-like bands.
 - EisenScript generation for both `ring` and `tower` layouts.
+- NOAA-driven shape generators that puff up spikes with moisture and densify
+  clumps when pressure gradients and lightning say the air is unstable.
+
+## NOAA moisture + pressure shape generators
+
+OpenWeatherMap gives us gorgeous wind, but NOAA's feeds hand over extra
+atmospheric toys: precipitation rate, humidity, barometric pressure, and even
+lightning strike estimates. Drop those into `wind_clump.noaa_shape_generators`
+to nudge the existing `FlowParams` without rewriting the wind pipeline.
+
+```python
+from wind_clump import (
+    NOAAAtmosphere,
+    apply_moisture_puffiness,
+    apply_pressure_clumping,
+    map_wind_to_flow,
+)
+
+wind_flow = map_wind_to_flow(wind_data)
+noaa = NOAAAtmosphere(
+    precipitation_rate_mm_hr=6.2,
+    humidity_percent=88,
+    barometric_pressure_hpa=987,
+    lightning_strikes_per_hr=4,
+)
+
+flow_with_moisture = apply_moisture_puffiness(wind_flow, noaa)
+storm_ready_flow = apply_pressure_clumping(flow_with_moisture, noaa)
+```
+
+- **Moisture → `spike_radius`**: humidity + precip swell spikes from chunky 0.75×
+  (desert-dry) to a soaked 1.45× multiplier.
+- **Pressure gradients → `clump_count`**: deviations from ~1013 hPa plus
+  lightning activity lean into density shifts, spanning roughly 60–160% of the
+  wind-derived clump count.
+
+These helpers are composable: call whichever ones match the sensor payload you
+have, and feed the returned `FlowParams` directly into `build_eisenscript`.
 
 ## License
 

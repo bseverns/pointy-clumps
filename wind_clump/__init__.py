@@ -5,7 +5,11 @@ Wind-driven EisenScript generator: fetch wind data, map to geometry, emit pointy
 from .wind_api import WindData, WindAPIError, fetch_wind_for_city
 from .flow_mapping import FlowParams, map_wind_to_flow
 from .eisenscript_generator import build_eisenscript
-
+from .noaa_shape_generators import (
+    NOAAAtmosphere,
+    apply_moisture_puffiness,
+    apply_pressure_clumping,
+)
 
 def generate_script_for_location(
     location: str,
@@ -26,7 +30,10 @@ __all__ = [
     "WindAPIError",
     "FlowParams",
     "fetch_wind_for_city",
+    "NOAAAtmosphere",
     "map_wind_to_flow",
+    "apply_moisture_puffiness",
+    "apply_pressure_clumping",
     "build_eisenscript",
     "generate_script_for_location",
 ]

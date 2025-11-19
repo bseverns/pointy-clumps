@@ -26,7 +26,7 @@ def test_build_eisenscript_ring_layout() -> None:
     assert "set seed 123" in script
     assert "// Layout: ring" in script
     assert "ry ANGLE_STEP" in script
-    assert "y VERTICAL_STEP" in script  # constant should exist even in ring layout
+    assert "#define VERTICAL_STEP" in script  # constant should exist even in ring layout
 
 
 def test_build_eisenscript_tower_layout() -> None:
@@ -37,7 +37,7 @@ def test_build_eisenscript_tower_layout() -> None:
     assert "set seed 999" in script
     assert "// Layout: tower" in script
     assert "y VERTICAL_STEP" in script
-    assert "ry ANGLE_STEP" in script  # constant should exist even in tower layout
+    assert "#define ANGLE_STEP" in script  # constant should exist even in tower layout
 
 
 def test_direction_and_speed_are_reflected_in_script() -> None:
