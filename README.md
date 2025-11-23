@@ -20,11 +20,11 @@ you can see where to jack in your favorite atmospheric weirdness:
 
 ```mermaid
 flowchart TD
-    A[fetch_wind_for_city<br/>(OpenWeatherMap)] --> B[map_wind_to_flow<br/>wind → FlowParams]
+    A[fetch_wind_for_city(OpenWeatherMap)] --> B[map_wind_to_flow<br/>wind → FlowParams]
     B -->|default| C[build_eisenscript<br/>FlowParams → EisenScript]
     subgraph extras[Optional hooks]
         D[NOAA boosts<br/>apply_moisture_puffiness<br/>apply_pressure_clumping]
-        E[Climate color swing<br/>--climate-anomaly<br/>--climate-tag]
+        E[Climate color swing--climate-anomaly--climate-tag]
     end
     B -->|feed in NOAA fields| D -->|modded FlowParams| C
     B -->|leave geometry alone, tint hues| E --> C
