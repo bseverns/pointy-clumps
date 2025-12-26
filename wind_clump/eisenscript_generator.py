@@ -72,7 +72,7 @@ rule scene {
 }
 """
 
-climate_lines: list[str] = []
+    climate_lines: list[str] = []
     if climate_tag:
         safe_tag = climate_tag.replace('"', "'")
         climate_lines.append(f'#define CLIMATE_TAG "{safe_tag}"')
