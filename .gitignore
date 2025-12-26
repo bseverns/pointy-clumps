@@ -18,3 +18,7 @@ ENV/
 
 # Optional: ignore exported geometry
 *.obj
+
+# Optional: keep generated example assets local
+generated/examples/*.es
+generated/examples/previews/
