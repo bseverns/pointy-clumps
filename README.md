@@ -288,7 +288,7 @@ have, and feed the returned `FlowParams` directly into `build_eisenscript`.
 
 ## License
 
-Pick a license you like (MIT is a good default) and add it as `LICENSE`
-if you intend to publish this repo.
+MIT, loud and clear. See [`LICENSE`](LICENSE) for the full text, and feel free
+to remix the code into your own wind-driven experiments.
 
 [Structure Synth]: http://structuresynth.sourceforge.net/
