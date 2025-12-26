@@ -15,6 +15,21 @@ The pipeline looks like this:
 3. An EisenScript `.es` file is written to disk.
 4. You open the `.es` in Structure Synth and export as `.obj`.
 
+Here is the whole tour, including the optional NOAA and climate-anomaly detours, so
+you can see where to jack in your favorite atmospheric weirdness:
+
+```mermaid
+flowchart TD
+    A[fetch_wind_for_city<br/>(OpenWeatherMap)] --> B[map_wind_to_flow<br/>wind → FlowParams]
+    B -->|default| C[build_eisenscript<br/>FlowParams → EisenScript]
+    subgraph extras[Optional hooks]
+        D[NOAA boosts<br/>apply_moisture_puffiness<br/>apply_pressure_clumping]
+        E[Climate color swing<br/>--climate-anomaly<br/>--climate-tag]
+    end
+    B -->|feed in NOAA fields| D -->|modded FlowParams| C
+    B -->|leave geometry alone, tint hues| E --> C
+```
+
 The mapping leans on Beaufort-style bands:
 
 - **Calm**: compact, chunky clumps with few spikes.
