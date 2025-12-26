@@ -115,6 +115,11 @@ python -m wind_clump.cli "Reykjavik,IS" \
   --layout tower
 ```
 
+See also: [example renders for calm → gale](generated/examples/README.md). The
+EisenScripts + PNG previews are generated locally (via the regen helper) and
+left out of version control to keep the repo nimble—run `make regen` and the
+inline image embeds in that README will light up with your own local renders.
+
 ### Typical Structure Synth workflow
 
 1. Run the generator to produce an `.es` file.
@@ -192,6 +197,25 @@ This writes multiple `.es` files into `generated/examples/`, e.g.:
 - `wellington_nz_tower.es`
 
 You can open any of them directly in Structure Synth.
+
+## Pull-request sanity check (so "Failed to create PR" stops popping up)
+
+This repo ships without a git remote on purpose. If your tool complains that it
+"Failed to create PR," it’s because there’s nowhere to push. Two fixes:
+
+1. Wire up your remote and push the branch:
+
+   ```bash
+   git remote add origin git@github.com:your-name/wind-pointy-clumps-es.git
+   git push -u origin work
+   ```
+
+2. Or, stick to the local flow: commit your changes, then run the PR helper
+   your platform provides (it’ll package the branch without needing a networked
+   remote). It’s the punk-rock, air-gapped way to ship.
+
+Either way, make sure `git status` is clean and you’ve actually committed before
+asking the bot to open a PR. Zero commits = zero PR.
 
 ## Tests
 
